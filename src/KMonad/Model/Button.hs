@@ -449,7 +449,12 @@ tapMacroRelease :: [Button] -> Button
 tapMacroRelease bs = onPress $ go bs
   where
     go []      = pure ()
-    go [b]     = awaitMy Release $ tap b >> pure Catch
+    go (b:last:[]) = do
+      runAction $ b^.pressAction
+      awaitMy Release $ do
+        runAction $ b^.releaseAction
+        tap last
+        pure Catch
     go (b:rst) = tap b >> go rst
 
 -- | Switch to a layer for a period of time, then automatically switch back
